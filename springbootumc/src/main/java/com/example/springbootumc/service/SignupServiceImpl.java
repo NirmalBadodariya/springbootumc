@@ -19,9 +19,9 @@ public class SignupServiceImpl implements SignupService {
 
     @Autowired
     private UserDao userDao;
-
+    
     @Override
-    public void addNewUser(UserBean user) {
+    public UserBean addNewUser(UserBean user) {
 
         List<UserRoles> roles = user.getRoles();
         for (AddressBean address : user.getAddresses()) {
@@ -32,23 +32,25 @@ public class SignupServiceImpl implements SignupService {
             role.setUser(user);
         }
         user.setRoles(roles);
-
+        
         final String secretKey = "ssshhhhhhhhhhh!!!!";
         String encryptedPass = AES.encrypt(user.getPass(), secretKey);
         user.setPass(encryptedPass);
-        userDao.save(user);
-
+        
+            return (UserBean) userDao.save(user);
+        
     }
-
+    
     public int checkUser(String email, String pass) {
         UserBean user = userDao.getByEmail(email);
-    int usertype = 0;
-        System.out.println("id:  " + user.getId());
-
+        int usertype = 0;
+        if(user==null){
+            return 0;
+        }
         int usertypeid = userDao.checkUserType(user.getId());
-
+        
        List list = userDao.findByEmailAndPass(user.getEmail(),user.getPass());
-
+       
         if (list != null && list.size() > 0 && usertypeid == 1) {
             usertype = 1;
         } else if (list != null && list.size() > 0 && usertypeid == 2) {
@@ -58,17 +60,19 @@ public class SignupServiceImpl implements SignupService {
         return usertype;
     }
 
-    public ArrayList getUserDetails() {
-   return (ArrayList) userDao.findAll();
+    public ArrayList<UserBean> getUserDetails() throws Exception{
+   ArrayList<UserBean> getAll =  (ArrayList) userDao.findAll();
 
+
+   return getAll;
     }
 
     public void deleteUser(int userId) throws SecurityException{
-        userDao.deleteAllById(Collections.singleton(userId));
+        userDao.deleteById(userId);
     }
 
     public UserBean getLoggedinUserDetails(String email) {
-        System.out.println("mail:"+ email);
+
         UserBean user =  userDao.getByEmail(email);
         final String secretKey = "ssshhhhhhhhhhh!!!!";
         String decryptedPass = AES.decrypt(user.getPass(), secretKey);
@@ -77,19 +81,21 @@ public class SignupServiceImpl implements SignupService {
     }
 
     @Override
-    public void changePass(int userId, String newPass) {
+        public void changePass(int userId, String newPass) {
        UserBean user = (UserBean) userDao.getById(userId);
         final String secretKey = "ssshhhhhhhhhhh!!!!";
         String encryptedPass = AES.encrypt(newPass, secretKey);
         user.setPass(encryptedPass);
+        if(user!=null){
        userDao.save(user);
+        }
     }
 
     public void updateUser(UserBean user) {
 
         userDao.save(user);
     }
-
+    
     public int checkForgotpassDetails(String dob, String securityAns) {
         List<UserBean> list = userDao.findByDobAndSecurityAns(dob, securityAns);
         if(list != null && list.size() > 0 && list.get(0).getId() !=0){
@@ -114,9 +120,15 @@ public class SignupServiceImpl implements SignupService {
         return userDetails;
     }
 
-    public List checkEmail(String email) {
+    public String checkEmail(String email) {
+    		
 
-        return userDao.findByEmail(email);
+        List<UserBean> list = userDao.findByEmail(email);
+        if (list != null && list.size() > 0) {
+            return "false";
+        } else {
+            return "true";
+        }
 
     }
 

@@ -12,11 +12,11 @@ import javax.transaction.SystemException;
 
 
 public interface SignupService {
-    void addNewUser(UserBean user);
+    Object addNewUser(UserBean user);
 
     int checkUser(String email, String pass);
 
-    ArrayList getUserDetails();
+    ArrayList getUserDetails() throws Exception;
 
     void deleteUser(int userId) throws SecurityException, RollbackException, HeuristicMixedException,
             HeuristicRollbackException, SystemException;
@@ -27,7 +27,7 @@ public interface SignupService {
 
     ArrayList<UserBean> getRecentUsersList();
 
-    List checkEmail(String email);
+    String checkEmail(String email);
 
     UserBean getLoggedinUserDetails(String email);
 

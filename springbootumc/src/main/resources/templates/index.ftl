@@ -33,7 +33,7 @@
 				</div>
 			<form action="Login" class="login-form" method="post">
 		      		<div class="form-group">
-		      			<input type="email" class="form-control rounded-left" placeholder="email" required name="email">
+		      			<input type="email" class="form-control rounded-left" id="email" placeholder="email" required name="email">
 		      		</div>
 		      		
 	            <div class="form-group d-flex">

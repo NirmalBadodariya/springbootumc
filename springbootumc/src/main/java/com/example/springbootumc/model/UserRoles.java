@@ -17,11 +17,7 @@ public class UserRoles {
     private UserBean user;
 
     private int role = 1;
-    
-    @Override
-    public String toString() {
-        return "UserRoles [id=" + id + ", role=" + role + ", user=" + user + "]";
-    }
+
 
     public UserBean getUser() {
         return user;

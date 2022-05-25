@@ -71,7 +71,7 @@ public class HomeController {
 
     @RequestMapping("/adminHome")
     public String adminHome(HttpSession session) {
-        if ((int) session.getAttribute("role") == 2 || session.getAttribute("role") == null) {
+        if ((int) session.getAttribute("role") == 2) {
             return "adminHome";
         } else {
             return "index";
@@ -79,13 +79,12 @@ public class HomeController {
     }
 
     @RequestMapping(path = "/Signup", method = RequestMethod.POST)
-    public String signup(@Valid @ModelAttribute UserBean user, BindingResult bindingResult, HttpSession session,
+    public String signup(@Valid @ModelAttribute("user") UserBean user, BindingResult bindingResult, HttpSession session,
                          @RequestParam("aid") String[] id,
-                         @RequestParam("profileimage") MultipartFile profilepic, Model model) {
-        BasicConfigurator.configure();
+                         @RequestParam("profileimage") MultipartFile profilepic, Model model) throws IOException {
+
         int usertypeforedit = 0;
         if (bindingResult.hasErrors()) {
-
             List<FieldError> error = bindingResult.getFieldErrors();
             System.out.println(error);
             List<String> errorList = new ArrayList();
@@ -96,36 +95,28 @@ public class HomeController {
                 model.addAttribute("user", user);
             }
             return "register";
-        } else {
-            System.out.println("came in else");
         }
 
         session.setAttribute("user", user);
         String profile = null;
-        try {
-            profile = Base64.getEncoder().encodeToString(profilepic.getBytes());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        profile = Base64.getEncoder().encodeToString(profilepic.getBytes());
+        
         if (profile != null) {
             user.setProfilepic(profile);
         }
-
+        	
             usertypeforedit = (int) session.getAttribute("role");
+        System.out.println("userid:"+ user.getId());
         if (user.getId() != 0) {
 
-            System.out.println("user: " + usertypeforedit);
             List<AddressBean> addresses = user.getAddresses();
             for (int i = 0; i < id.length; i++) {
-                log.info(id[i]);
                 if (!id[i].isEmpty()) {
                     int Addressid = Integer.parseInt(id[i]);
                     addresses.get(i).setAid(Addressid);
 
                 }
             }
-
             System.err.println("Update User");  
             for (AddressBean address : user.getAddresses()) {
                 address.setUserBean(user);
@@ -136,8 +127,6 @@ public class HomeController {
             signupServiceImpl.updateUser(user);
 
         } else {
-
-            System.err.println("New User");
             signupServiceImpl.addNewUser(user);
         }
         if (usertypeforedit == 0) {
@@ -150,11 +139,14 @@ public class HomeController {
             return "redirect:adminHome";
 
         }
-        return null;
+        else {
+        return "redirect:register";
+        }
     }
 
     @RequestMapping(path = "/Login", method = RequestMethod.POST)
     public String login(@RequestParam String email, @RequestParam String pass, HttpSession session, Model model) {
+        System.out.println("Pradip");
         int usertype = signupServiceImpl.checkUser(email, pass);
         String noUser = "noUser";
         session.setAttribute("email", email);
@@ -174,7 +166,7 @@ public class HomeController {
 
     @RequestMapping(path = "/UsersDetails", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
-    public String getUserDetails() {
+    public String getUserDetails() throws Exception {
 
         ArrayList<UserBean> userDetails = signupServiceImpl.getUserDetails();
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -186,7 +178,6 @@ public class HomeController {
     @RequestMapping(path = "/DeleteUser", method = RequestMethod.POST)
     @ResponseBody
     public String deleteUser(@RequestParam int userId) {
-        log.info("Id:   " + userId);
         try {
             signupServiceImpl.deleteUser(userId);
         } catch (SecurityException | RollbackException | HeuristicMixedException | HeuristicRollbackException
@@ -202,10 +193,9 @@ public class HomeController {
     public String editDetails(HttpSession session) {
 
         if (session.getAttribute("email") != null) {
-            System.out.println("email got" + session.getAttribute("email"));
             String email = (String) session.getAttribute("email");
             UserBean userDetails = signupServiceImpl.getLoggedinUserDetails(email);
-
+            
             session.setAttribute("user", userDetails);
         }
         return "register";
@@ -225,7 +215,7 @@ public class HomeController {
             return "forgotpass";
         }
     }
-
+    
     @RequestMapping(path = "/ChangePass", method = RequestMethod.POST)
     public String changePass(@RequestParam String newPass, HttpSession session) {
 
@@ -235,7 +225,7 @@ public class HomeController {
         return "index";
 
     }
-
+    
     @RequestMapping("/Logout")
     public String logOut(HttpSession session) {
         session.invalidate();
@@ -245,7 +235,6 @@ public class HomeController {
     @RequestMapping("/emailFromUser")
     public ModelAndView emailFromUser(@RequestParam("email") String userEmail, HttpSession session) {
         session.setAttribute("email", userEmail);
-        System.out.println("usersideemailser" + userEmail);
         return new ModelAndView("redirect:/EditDetails");
     }
 
@@ -265,15 +254,15 @@ public class HomeController {
         return JSONObject;
 
     }
-
+    
     @RequestMapping("/CheckEmailAvailability")
     @ResponseBody
     public String checkEmailAvailability(@RequestParam("email") String email, HttpSession session) {
-        List list = signupServiceImpl.checkEmail(email);
-        if (list != null && list.size() > 0 && session.getAttribute("email") == null) {
-            return "false";
+        String emailExists = signupServiceImpl.checkEmail(email);
+        if (session.getAttribute("email") == null) {
+            return emailExists;
         } else {
-            return "true";
+            return emailExists;
         }
     }
 }

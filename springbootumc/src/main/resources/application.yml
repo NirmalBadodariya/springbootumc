@@ -1,0 +1,19 @@
+spring:
+  freemarker:
+    template-loader-path: 'classpath:/templates'
+    suffix: .ftl
+  datasource:
+    url: 'jdbc:mysql://${MYSQL_HOST:localhost}:3306/bootumc'
+    username: root
+    password: nirmal15
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  mvc:
+    converters:
+      preferred-json-mapper: gson
+server:
+  port: '8443'

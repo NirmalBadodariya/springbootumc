@@ -29,14 +29,14 @@ public class UserBean {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @Expose
-    @Size(min = 2, max = 30)
+    @Size(min = 4, max = 30)
     @NotBlank(message = "FirstName Cannot be blank")
     private String firstName;
     @NotBlank(message = "LastName Cannot be blank")
     @Expose
     private String lastName;
     @Expose
-    @NotEmpty
+//    @NotEmpty
     @NotBlank(message = "email Cannot be blank")
     @Email(message = "Please enter valid email")
     private String email;
