@@ -1,6 +1,7 @@
 package com.example.springbootumc.service;
 
 import com.example.springbootumc.model.UserBean;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,4 +33,5 @@ public interface SignupService {
     UserBean getLoggedinUserDetails(String email);
 
     void changePass(int userId, String newPass);
+//    public UserDetails loadUserByUsername(String username);
 }

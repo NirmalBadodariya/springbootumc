@@ -3,6 +3,7 @@ package com.example.springbootumc.dao;
 import com.example.springbootumc.model.UserBean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public interface UserDao<T> extends JpaRepository<UserBean , Integer> {
     @Query(value = "select * from users where CreatedTime  >= NOW() - INTERVAL 1 DAY",nativeQuery = true)
     List<Object[]> getRecentUsersList();
 
-    List findByEmail(String email);
+    UserBean findByEmail(String email);
+
 
 }

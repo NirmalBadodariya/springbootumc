@@ -1,5 +1,6 @@
 spring:
   freemarker:
+    expose-request-attributes: 'true'
     template-loader-path: 'classpath:/templates'
     suffix: .ftl
   datasource:
@@ -16,4 +17,4 @@ spring:
     converters:
       preferred-json-mapper: gson
 server:
-  port: '8443'
+  port: '8080'

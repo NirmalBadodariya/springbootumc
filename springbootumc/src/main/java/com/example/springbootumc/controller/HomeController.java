@@ -12,17 +12,22 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.validation.Valid;
 
+//import com.example.springbootumc.configurations.UserPrincipal;
+import com.example.springbootumc.configurations.UserPrincipal;
 import com.example.springbootumc.model.AddressBean;
-import com.example.springbootumc.model.ForgotPassBean;
 import com.example.springbootumc.model.UserBean;
 import com.example.springbootumc.model.UserRoles;
 import com.example.springbootumc.service.SignupService;
+import com.example.springbootumc.service.myUserDetailsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -41,17 +46,41 @@ public class HomeController {
     Logger log = Logger.getLogger(HomeController.class.getName());
 
     @Autowired
+    private myUserDetailsService myUserDetailsService;
+    @Autowired
     private SignupService signupServiceImpl;
+    @RequestMapping(path = "/setSession")
+    public String setSession(HttpSession session){
+        System.out.println("maul_skhdsdkf");
 
-    @RequestMapping(path = { "/", "/index" })
+        UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+       UserBean user =  userDetails.returnUser();
+        System.out.println("maul_"+user.getEmail());
+       session.setAttribute("email",user.getEmail());
+        System.out.println("heeeeeeeeee");
+        if(user.getUserRole()==1){
+            System.out.println("goto user");
+            return "userHome";
+        }
+        else if (user.getUserRole()==2){
+            System.out.println("goto admin");
+            return "token";
+        }
+        return null;
+    }
+    @RequestMapping(path = { "/" ,"/index" })
     public String loginPage() {
-
         return "index";
 
     }
-
+//    @RequestMapping(value = "/login", method = RequestMethod.POST)
+//    public String login(Model model) {
+//
+//        return "userHome";
+//    }
     @RequestMapping("/register")
     public String gotoRegister() {
+
         return "register";
     }
 
@@ -60,24 +89,15 @@ public class HomeController {
         return "forgotpass";
     }
 
-    @RequestMapping({ "/userHome", "/backToHome" })
+    @RequestMapping({ "/userHome"})
     public String userHome(HttpSession session) {
-        if ((int) session.getAttribute("role") == 0) {
             return "userHome";
-        } else {
-            return "index";
-        }
     }
 
     @RequestMapping("/adminHome")
     public String adminHome(HttpSession session) {
-        if ((int) session.getAttribute("role") == 2) {
             return "adminHome";
-        } else {
-            return "index";
-        }
     }
-
     @RequestMapping(path = "/Signup", method = RequestMethod.POST)
     public String signup(@Valid @ModelAttribute("user") UserBean user, BindingResult bindingResult, HttpSession session,
                          @RequestParam("aid") String[] id,
@@ -105,9 +125,9 @@ public class HomeController {
             user.setProfilepic(profile);
         }
         	
-            usertypeforedit = (int) session.getAttribute("role");
         System.out.println("userid:"+ user.getId());
         if (user.getId() != 0) {
+            usertypeforedit = (int) session.getAttribute("role");
 
             List<AddressBean> addresses = user.getAddresses();
             for (int i = 0; i < id.length; i++) {
@@ -144,25 +164,24 @@ public class HomeController {
         }
     }
 
-    @RequestMapping(path = "/Login", method = RequestMethod.POST)
-    public String login(@RequestParam String email, @RequestParam String pass, HttpSession session, Model model) {
-        System.out.println("Pradip");
-        int usertype = signupServiceImpl.checkUser(email, pass);
-        String noUser = "noUser";
-        session.setAttribute("email", email);
-        if (usertype == 1) {
-            session.setAttribute("role", 0);
-            return "redirect:userHome";
-
-        } else if (usertype == 2) {
-            session.setAttribute("role", 2);
-            return "redirect:adminHome";
-
-        } else {
-            model.addAttribute(noUser, "User Doesn't Exist");
-            return "index";
-        }
-    }
+//    @RequestMapping(path = "/Login", method = RequestMethod.POST)
+//    public String login(@RequestParam String email, @RequestParam String pass, HttpSession session, Model model) {
+//        int usertype = signupServiceImpl.checkUser(email, pass);
+//        String noUser = "noUser";
+//        session.setAttribute("email", email);
+//        if (usertype == 1) {
+//            session.setAttribute("role", 0);
+//            return "redirect:userHome";
+//
+//        } else if (usertype == 2) {
+//            session.setAttribute("role", 2);
+//            return "redirect:adminHome";
+//
+//        } else {
+//            model.addAttribute(noUser, "User Doesn't Exist");
+//            return "index";
+//        }
+//    }
 
     @RequestMapping(path = "/UsersDetails", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
@@ -226,11 +245,11 @@ public class HomeController {
 
     }
     
-    @RequestMapping("/Logout")
-    public String logOut(HttpSession session) {
-        session.invalidate();
-        return "redirect:index";
-    }
+//    @RequestMapping("/Logout")
+//    public String logOut(HttpSession session) {
+//        session.invalidate();
+//        return "redirect:index";
+//    }
 
     @RequestMapping("/emailFromUser")
     public ModelAndView emailFromUser(@RequestParam("email") String userEmail, HttpSession session) {

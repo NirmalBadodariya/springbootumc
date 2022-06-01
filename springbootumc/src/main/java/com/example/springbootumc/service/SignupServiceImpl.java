@@ -11,6 +11,10 @@ import com.example.springbootumc.model.AddressBean;
 import com.example.springbootumc.model.UserBean;
 import com.example.springbootumc.model.UserRoles;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -19,7 +23,11 @@ public class SignupServiceImpl implements SignupService {
 
     @Autowired
     private UserDao userDao;
-    
+
+    @Autowired
+    private   PasswordEncoder encoder;
+
+
     @Override
     public UserBean addNewUser(UserBean user) {
 
@@ -32,15 +40,14 @@ public class SignupServiceImpl implements SignupService {
             role.setUser(user);
         }
         user.setRoles(roles);
-        
-        final String secretKey = "ssshhhhhhhhhhh!!!!";
-        String encryptedPass = AES.encrypt(user.getPass(), secretKey);
+
+        String encryptedPass =encoder.encode(user.getPass());
         user.setPass(encryptedPass);
-        
+
             return (UserBean) userDao.save(user);
-        
+
     }
-    
+
     public int checkUser(String email, String pass) {
         UserBean user = userDao.getByEmail(email);
         int usertype = 0;
@@ -83,8 +90,9 @@ public class SignupServiceImpl implements SignupService {
     @Override
         public void changePass(int userId, String newPass) {
        UserBean user = (UserBean) userDao.getById(userId);
-        final String secretKey = "ssshhhhhhhhhhh!!!!";
-        String encryptedPass = AES.encrypt(newPass, secretKey);
+       // final String secretKey = "ssshhhhhhhhhhh!!!!";
+        String encryptedPass = encoder.encode(newPass);
+
         user.setPass(encryptedPass);
         if(user!=null){
        userDao.save(user);
@@ -121,10 +129,10 @@ public class SignupServiceImpl implements SignupService {
     }
 
     public String checkEmail(String email) {
-    		
 
-        List<UserBean> list = userDao.findByEmail(email);
-        if (list != null && list.size() > 0) {
+
+        UserBean user  = userDao.findByEmail(email);
+        if (user != null ) {
             return "false";
         } else {
             return "true";
@@ -132,4 +140,12 @@ public class SignupServiceImpl implements SignupService {
 
     }
 
-}
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        UserBean user = (UserBean) userDao.findByEmail(username);
+//        if (user==null){
+//            throw  new UsernameNotFoundException("no user found");
+//        }
+//        return new UserPrincipal(user);
+    }
+
