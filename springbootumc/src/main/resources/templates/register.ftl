@@ -67,7 +67,7 @@
 
 
                 </div>
-                <#--  <p style="text-align:center"><c:out value="${errMsg}"/></p>  -->
+
                 <div class="card-body">
                     <form action="Signup" method="POST" id="register" enctype="multipart/form-data">
                         <div class="form-row m-b-55">

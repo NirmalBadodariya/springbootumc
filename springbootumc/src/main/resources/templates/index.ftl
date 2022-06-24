@@ -31,7 +31,7 @@
 				  <div>
 					<h4 style="color:red"><#if noUser??>${noUser}</#if></h4>
 				</div>
-			<form action="/login" class="login-form" method="post">
+			<form action="/token" class="login-form" method="post">
 		      		<div class="form-group">
 		      			<input type="email" class="form-control rounded-left" id="email" placeholder="email" required name="email">
 		      		</div>

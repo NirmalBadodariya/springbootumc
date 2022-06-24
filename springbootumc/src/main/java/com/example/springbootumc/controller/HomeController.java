@@ -11,7 +11,6 @@ import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.validation.Valid;
-
 //import com.example.springbootumc.configurations.UserPrincipal;
 import com.example.springbootumc.configurations.UserPrincipal;
 import com.example.springbootumc.model.AddressBean;
@@ -32,39 +31,30 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 
 @Controller
 public class HomeController {
-    Logger log = Logger.getLogger(HomeController.class.getName());
-
     @Autowired
     private myUserDetailsService myUserDetailsService;
     @Autowired
     private SignupService signupServiceImpl;
-    @RequestMapping(path = "/setSession")
-    public String setSession(HttpSession session){
-        System.out.println("maul_skhdsdkf");
-
+    @RequestMapping("/setSession")
+    public String setSession(){
         UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
        UserBean user =  userDetails.returnUser();
-        System.out.println("maul_"+user.getEmail());
-       session.setAttribute("email",user.getEmail());
-        System.out.println("heeeeeeeeee");
+
+      // session.setAttribute("email",user.getEmail());
         if(user.getUserRole()==1){
             System.out.println("goto user");
             return "userHome";
         }
         else if (user.getUserRole()==2){
             System.out.println("goto admin");
-            return "token";
+            return "adminHome";
         }
         return null;
     }
@@ -155,7 +145,7 @@ public class HomeController {
             return "redirect:userHome";
         } else if (usertypeforedit == 2) {
             System.out.println("Admin Logged in");
-            log.info("Admin Logged in");
+            //log.info("Admin Logged in");
             return "redirect:adminHome";
 
         }
